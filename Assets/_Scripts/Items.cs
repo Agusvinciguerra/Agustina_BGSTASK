@@ -10,6 +10,8 @@ public class Items : MonoBehaviour
     [SerializeField] private TextMeshProUGUI UIText;
     [SerializeField] private GameObject inventory;    
     [SerializeField] private Image[] images;
+    [SerializeField] private Sprite[] sprites;
+    [SerializeField] private GameObject player;
     private float playerMoney = 50f;
     private string itemName;
     Dictionary <string, Tuple<float, bool>> itemDetails;
@@ -17,6 +19,9 @@ public class Items : MonoBehaviour
 
     void Awake()
     {
+        // Find player
+        player = GameObject.Find("Player");
+
         // Add item names and prices to a dictionary
         itemDetails = new Dictionary<string, Tuple<float, bool>>
         {
@@ -112,6 +117,26 @@ public class Items : MonoBehaviour
         }
     }
 
+    public void EquipItem()
+    {
+        Sprite currentSprite = player.transform.Find("Shirt").GetComponent<SpriteRenderer>().sprite;
+        Sprite sprite = Array.Find(sprites, spr => spr.name == itemName);
+
+        Transform childTransform = player.transform.Find("Shirt");
+        SpriteRenderer spriteRenderer = childTransform.GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sprite = sprite;
+        }
+
+        if (currentSprite == sprite)
+        {
+            Debug.Log("You are already wearing this item.");
+        } else {
+            Debug.Log($"You equipped {itemName}!");
+        }
+    }
+
     // Arrange the inventory
     void Inventory()
     {
@@ -131,6 +156,13 @@ public class Items : MonoBehaviour
                 if (image != null)
                 {
                     image.gameObject.SetActive(true);
+                    float price = item.Value.Item1;
+
+                    TextMeshProUGUI priceText = image.GetComponentInChildren<TextMeshProUGUI>();
+                    if (priceText != null)
+                    {
+                        priceText.text = $"${price}";
+                    }
                 }
             }
         }
