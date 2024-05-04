@@ -5,10 +5,10 @@ using TMPro;
 
 public class Items : MonoBehaviour
 {
-    public Dictionary<string, float> itemPrices;
+    public Dictionary<string, float> itemPrices; 
     [SerializeField] private TextMeshProUGUI UIText;
     private float playerMoney = 50.5f;
-    //private string itemName;
+    private string itemName;
 
     void Awake()
     {
@@ -20,12 +20,19 @@ public class Items : MonoBehaviour
         };
     }
 
+    // Get the item name
+    public void GetName(string name)
+    {
+        itemName = name;
+        SetUI();
+    }
+
     // Set the UI text to state item name and price
-    public void SetUI(string itemName)
+    public void SetUI()
     {
         if (itemPrices.TryGetValue(itemName, out float price)) // Check if the item exists in the dictionary
         {
-            UIText.text = $"Buy {itemName} for {price}?";
+            UIText.text = $"Buy {itemName} for {price}?"; // Update the UI text
             Debug.Log($"Item: {itemName}, Price: {price}");
         }
         else // Execute if the item is not in the dictionary
@@ -35,7 +42,7 @@ public class Items : MonoBehaviour
     }
 
     // Check for the player's money and act accordingly
-    public void BuyItem(string itemName)
+    public void BuyItem()
     {
         if (itemPrices.TryGetValue(itemName, out float price)) // Check if the item exists in the dictionary
         {
@@ -43,6 +50,7 @@ public class Items : MonoBehaviour
             {
                 playerMoney -= price; // Subtract the price from the player's money
                 Debug.Log($"You bought {itemName} for {price}!");
+                Debug.Log($"{playerMoney} left.");
             }
             else // Execute if the player does not have enough money
             {
