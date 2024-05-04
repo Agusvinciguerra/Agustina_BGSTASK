@@ -1,22 +1,27 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class Items : MonoBehaviour
 {
-    public Dictionary<string, float> itemPrices; 
     [SerializeField] private TextMeshProUGUI UIText;
-    private float playerMoney = 50.5f;
+    [SerializeField] private GameObject inventory;    
+    [SerializeField] private Image[] images;
+    private float playerMoney = 50f;
     private string itemName;
+    Dictionary <string, Tuple<float, bool>> itemDetails;
+    private bool inventoryOpen = false;
 
     void Awake()
     {
         // Add item names and prices to a dictionary
-        itemPrices = new Dictionary<string, float>
+        itemDetails = new Dictionary<string, Tuple<float, bool>>
         {
-            {"Scarf", 10.0f},
-            {"Skirt", 20.0f}
+            {"Scarf", new Tuple<float, bool>(10.0f, false)},
+            {"Skirt", new Tuple<float, bool>(20.0f, false)}
         };
     }
 
@@ -27,15 +32,32 @@ public class Items : MonoBehaviour
         SetUI();
     }
 
-    // Set the UI text to state item name and price
-    public void SetUI()
+    void Update()
     {
-        if (itemPrices.TryGetValue(itemName, out float price)) // Check if the item exists in the dictionary
+        // Check for TAB input and open/close the inventory
+        if (Input.GetKeyDown(KeyCode.Tab) && !inventoryOpen)
         {
-            UIText.text = $"Buy {itemName} for {price}?"; // Update the UI text
-            Debug.Log($"Item: {itemName}, Price: {price}");
+            inventoryOpen = true;
+            Inventory();
+        } else if (Input.GetKeyDown(KeyCode.Tab) && inventoryOpen)
+        {
+            inventoryOpen = false;
+            CloseInventory();
         }
-        else // Execute if the item is not in the dictionary
+    }
+
+    // Set the UI text to state item name and price
+    void SetUI()
+    {
+        if (itemDetails.TryGetValue(itemName, out Tuple<float, bool> details)) // Check if the item exists in the dictionary
+        {
+            float price = details.Item1;
+            bool bought = details.Item2;
+
+            UIText.text = $"Buy {itemName} for {price}?"; // Update the UI tex
+            Debug.Log($"Item: {itemName}, Price: {price}");
+            Debug.Log($"Item bought: {bought}");
+        } else // Execute if the item is not in the dictionary
         {
             UIText.text = "Sorry, this item is not for sale.";
         }
@@ -44,18 +66,78 @@ public class Items : MonoBehaviour
     // Check for the player's money and act accordingly
     public void BuyItem()
     {
-        if (itemPrices.TryGetValue(itemName, out float price)) // Check if the item exists in the dictionary
+        if (itemDetails.TryGetValue(itemName, out Tuple<float, bool> details)) // Check if the item exists in the dictionary
         {
-            if (playerMoney >= price) // Check if the player has enough money
+            float price = details.Item1;
+            bool bought = details.Item2;
+
+            if (playerMoney >= price) // Check if the item is not bought and the player has enough money
             {
-                playerMoney -= price; // Subtract the price from the player's money
+                playerMoney -= price; // Take the price from the player's money
                 Debug.Log($"You bought {itemName} for {price}!");
                 Debug.Log($"{playerMoney} left.");
-            }
-            else // Execute if the player does not have enough money
+
+                // Update the item status to bought
+                itemDetails[itemName] = new Tuple<float, bool>(price, true);
+            } else // Execute if the player does not have enough money
             {
                 Debug.Log("You do not have enough money to buy this item.");
             }
         }
+    }
+
+    public void SellItem()
+    {
+        if (itemDetails.TryGetValue(itemName, out Tuple<float, bool> details)) // Check if the item exists in the dictionary
+        {
+            float price = details.Item1;
+            bool bought = details.Item2;
+
+            if (bought) // Check if the item is bought
+            {
+                playerMoney += price; // Add the price to the player's money
+                Debug.Log($"You sold {itemName} for {price}!");
+                Debug.Log($"{playerMoney} left.");
+
+                // Update the item status to not bought
+                itemDetails[itemName] = new Tuple<float, bool>(price, false);
+
+                // Disable the image
+                Image image = Array.Find(images, img => img.name == itemName);
+                if (image != null)
+                {
+                    image.gameObject.SetActive(false);
+                }
+            }
+        }
+    }
+
+    // Arrange the inventory
+    void Inventory()
+    {
+        // Display the inventory
+        inventory.SetActive(true);
+
+        // Check for bought items
+        foreach (KeyValuePair<string, Tuple<float, bool>> item in itemDetails)
+        {
+            if (item.Value.Item2)
+            {
+                // Get the item name
+                string itemName = item.Key;
+
+                // Find the image within the array that has the same name as the bought item
+                Image image = Array.Find(images, img => img.name == itemName);
+                if (image != null)
+                {
+                    image.gameObject.SetActive(true);
+                }
+            }
+        }
+    }
+
+    void CloseInventory()
+    {
+        inventory.SetActive(false);
     }
 }
