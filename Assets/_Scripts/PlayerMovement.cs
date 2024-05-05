@@ -4,7 +4,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 5.0f;
     public bool positionLocked = false;
-    private float speedX, speedY; 
+    private Vector2 movement; 
     private Rigidbody2D rb;
 
     void Start()
@@ -18,13 +18,18 @@ public class PlayerMovement : MonoBehaviour
         if (!positionLocked)
         {
             // Get input 
-            speedX = Input.GetAxis("Horizontal") * speed;
-            speedY = Input.GetAxis("Vertical") * speed; 
+            movement.x = Input.GetAxis("Horizontal");
+            movement.y = Input.GetAxis("Vertical");
+        }
+    }
 
+    void FixedUpdate()
+    {
+        if (!positionLocked)
+        {
             // Move player 
-            Vector2 newPosition = rb.position + new Vector2(speedX, speedY) * Time.deltaTime;
+            Vector2 newPosition = rb.position + movement.normalized * speed * Time.fixedDeltaTime;
             rb.MovePosition(newPosition);
-            return;
         }
     }
 }

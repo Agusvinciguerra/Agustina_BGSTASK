@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class DialogueManager : MonoBehaviour
 {
     private Dictionary<string, string> dialogues;
+    [SerializeField] private TextMeshProUGUI dialogueText;
+    [SerializeField] private TextMeshProUGUI shopText;
 
     void Start()
     {
@@ -13,23 +16,39 @@ public class DialogueManager : MonoBehaviour
         {
             { "welcome", "Welcome, wanderer" },
             { "openShop", "What brings you here today?" },
-            { "buy", "What would you like to get?"},
+            { "buy", "Great choice"},
+            { "noMoney", "You don't have enough money"},
             { "sell", "What do you have for me today?" },
             { "exit", "Goodbye, wanderer"}
         };
     }
 
     // Call this method to get the corresponding dialogue
-    public void SetText(string key)
+    public void SetLocalText(string key)
     {
         string text;
         if (dialogues.TryGetValue(key, out text))
         {
-            Debug.Log(text);
+            //Debug.Log(text);
+            dialogueText.text = text;
         }
         else
         {
             Debug.LogError("Key not found: " + key);
         }
     }
+
+    public void SetShopText(string key)
+    {
+        string text;
+        if (dialogues.TryGetValue(key, out text))
+        {
+            //Debug.Log(text);
+            shopText.text = text;
+        }
+        else
+        {
+            Debug.LogError("Key not found: " + key);
+        }
+    } 
 }

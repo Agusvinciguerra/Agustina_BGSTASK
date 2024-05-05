@@ -9,21 +9,20 @@ namespace ItemsSpace
 {
     public class Shop : MonoBehaviour
     {
-        [SerializeField] private Sprite[] itemObjects;
+        public Sprite[] itemObjects;
         [SerializeField] private Transform[] itemSlots;
         [SerializeField] private TextMeshProUGUI[] itemText; 
         private Inventory inventory;
-        private PlayerMovement playerMovement;
-        private FindButtonParent findButtonParent;
+        [SerializeField] private PlayerMovement playerMovement;
+        private DialogueManager dialogueManager; 
+        [SerializeField] private FindButtonParent[] findButtonParent;
         private string slotOGName;
 
         void Awake()
         {
             playerMovement = FindObjectOfType<PlayerMovement>();
             inventory = FindObjectOfType<Inventory>();
-            findButtonParent = FindObjectOfType<FindButtonParent>();
-
-            EnterShop();
+            dialogueManager = FindObjectOfType<DialogueManager>();
         }
 
         public void CloseShop()
@@ -32,7 +31,7 @@ namespace ItemsSpace
         }
 
         // Sets the items in shop
-        public void EnterShop()
+        /*public void EnterShop()
         {
             playerMovement.positionLocked = true;
             List<Sprite> matchedSprites = new List<Sprite>();
@@ -72,9 +71,70 @@ namespace ItemsSpace
                     slot.transform.parent.name = currentSprite.name;
                 }
             }
+            
+            foreach (FindButtonParent findButtonParent in findButtonParent)
+            {
+                findButtonParent.StartProcess();
+            }
+        }*/
 
-            findButtonParent.StartProcess();
+        public void EnterShop()
+        {
+            playerMovement.positionLocked = true;
+            findButtonParent = FindObjectsOfType<FindButtonParent>();
+
+            dialogueManager.SetShopText("openShop");
+            List<Sprite> matchedSprites = new List<Sprite>();
+            List<float> matchedPrices = new List<float>();
+            List<string> matchedType = new List<string>();
+
+            // Create a dictionary that maps item names to their corresponding sprites, prices, and types
+            Dictionary<string, (Sprite sprite, float price, string type)> itemData = new Dictionary<string, (Sprite sprite, float price, string type)>();
+            for (int i = 0; i < itemObjects.Length; i++)
+            {
+                string itemName = itemObjects[i].name;
+                float itemPrice = ItemData.instance.itemDictionary[itemName].Item1;
+                string itemType = ItemData.instance.itemDictionary[itemName].Item2;
+                itemData[itemName] = (itemObjects[i], itemPrice, itemType);
+            }
+
+            // Now you can look up the sprite, price, and type for an item in constant time
+            foreach (KeyValuePair<string, Tuple<float, string, bool>> item in ItemData.instance.itemDictionary)
+            {
+                if (itemData.TryGetValue(item.Key, out var data) && !item.Value.Item3)
+                {
+                    matchedSprites.Add(data.sprite);
+                    matchedPrices.Add(data.price);
+                    matchedType.Add(data.type);
+                }
+            }
+            
+            int c = 0;
+            foreach (Transform slot in itemSlots)
+            {
+                if (c < matchedSprites.Count)
+                {
+                    Sprite currentSprite = matchedSprites[c];
+                    //Debug.Log("Current sprite name: " + currentSprite.name);
+
+                    slot.gameObject.GetComponent<Image>().sprite = matchedSprites[c];
+                    itemText[c].text = matchedType[c] + "\n$" + matchedPrices[c];
+                    c++;
+                    
+                    slotOGName = slot.transform.parent.name;
+
+                    slot.transform.parent.name = currentSprite.name;
+                    Debug.Log("Reached this point");
+                }
+            }
+            
+            foreach (FindButtonParent findButtonParent in findButtonParent)
+            {
+                Debug.Log("Entered parent search");
+                findButtonParent.StartProcess();
+            }
         }
+
 
         public void BuyItem(string itemName)
         {
@@ -90,15 +150,64 @@ namespace ItemsSpace
                     inventory.DebugInventory();
                     
                     Debug.Log("Item bought!");
+                    dialogueManager.SetShopText("buy");
+                    ClearSlot(itemName);
                 }
                 else
                 {
                     Debug.Log("Not enough money!");
+                    dialogueManager.SetShopText("noMoney");
                 }
             }
             else
             {
                 Debug.Log("Item not found!");
+            }
+        }
+
+        public void SellItem(string itemName)
+        {
+            if (ItemData.instance.itemDictionary.ContainsKey(itemName))
+            {
+                var item = ItemData.instance.itemDictionary[itemName];
+                if (item.Item3) // Check if player has the item
+                {
+                    inventory.playerMoney += item.Item1; // Add price to player's money
+                    ItemData.instance.itemDictionary[itemName] = new Tuple<float, string, bool>(item.Item1, item.Item2, false); // Set bool's condition to false
+                    
+                    inventory.boughtItems.Remove(itemName); // Remove item from inventory
+                    inventory.DebugInventory();
+                    
+                    Debug.Log("Item sold!");
+                }
+                else
+                {
+                    Debug.Log("Item not found in inventory!");
+                }
+            }
+            else
+            {
+                Debug.Log("Item not found!");
+            }
+        }
+
+        void ClearSlot(string clearedItem)
+        {
+            for (int i = 0; i < itemSlots.Length; i++)
+            {
+                Transform slot = itemSlots[i];
+                if (slot.transform.parent.name == clearedItem)
+                {
+                    slot.transform.parent.name = slotOGName;
+                    itemText[i].text = "Bought" + "\n" + "item"; // Clear the corresponding item text
+                    slot.gameObject.GetComponent<Image>().sprite = null; // Clear the item image if needed
+                    //slot.transform.parent.gameObject.SetActive(false);
+                    foreach (FindButtonParent findButtonParent in findButtonParent)
+                    {
+                        findButtonParent.ReCheck("Buy");
+                    }
+                    break; // Exit the loop if you only expect one match
+                }
             }
         }
 
