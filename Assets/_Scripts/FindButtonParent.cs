@@ -6,23 +6,23 @@ namespace ItemsSpace
 {
     public class FindButtonParent : MonoBehaviour
     {
-        [SerializeField] ItemManager itemManager;
+        [SerializeField] Shop shop;
         public string buttonParentName;
 
-        void Awake()
+        public void StartProcess()
         {
-            itemManager = FindObjectOfType<ItemManager>();
+            shop = FindObjectOfType<Shop>();
             buttonParentName = transform.parent.name;
         }
 
-        public void SendEquipItem()
+        public void SendBuyItem()
         {
-            itemManager.EquipItem(buttonParentName);
+            shop.BuyItem(buttonParentName);
         }
 
         public void SendSellItem()
         {
-            itemManager.FindItemToSell(buttonParentName);
+            shop.BuyItem(buttonParentName);
         }
     }
 }

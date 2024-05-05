@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 5.0f;
+    public bool positionLocked = false;
     private float speedX, speedY; 
     private Rigidbody2D rb;
 
@@ -14,12 +15,16 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Get input 
-        speedX = Input.GetAxis("Horizontal") * speed;
-        speedY = Input.GetAxis("Vertical") * speed; 
+        if (!positionLocked)
+        {
+            // Get input 
+            speedX = Input.GetAxis("Horizontal") * speed;
+            speedY = Input.GetAxis("Vertical") * speed; 
 
-        // Move player 
-        Vector2 newPosition = rb.position + new Vector2(speedX, speedY) * Time.deltaTime;
-        rb.MovePosition(newPosition);
+            // Move player 
+            Vector2 newPosition = rb.position + new Vector2(speedX, speedY) * Time.deltaTime;
+            rb.MovePosition(newPosition);
+            return;
+        }
     }
 }
