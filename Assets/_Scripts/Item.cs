@@ -2,34 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Item : MonoBehaviour
+namespace ItemsSpace
 {
-    private Items items;
-    private Item item;
-    public ItemType itemType;
-    public enum ItemType
+    public class Item : MonoBehaviour
     {
-        Skirt, 
-        Scarf,
-        Sneakers
-    }
-    [SerializeField] private GameObject buyUI;
+        private Items items;
+        [SerializeField] private ItemManager itemManager;
 
-    void Awake()
-    {
-        Debug.Log(itemType.ToString());
-        
-        // Find the Items and Item scripts
-        items = FindObjectOfType<Items>();
-        item = FindObjectOfType<Item>();
-    }
+        private Item item;
+        public ItemType itemType;
+        public enum ItemType
+        {
+            Skirt, 
+            Scarf,
+            Sneakers
+        }
+        [SerializeField] private GameObject buyUI;
 
-    public void OnTriggerEnter2D()
-    {
-        // Get the item name and send it to the Items script
-        items.GetName(gameObject.GetComponent<Item>().itemType.ToString());
+        void Awake()
+        {
+            // Find the Items and Item scripts
+            itemManager = FindObjectOfType<ItemManager>();
+            item = FindObjectOfType<Item>();
+        }
 
-        // Display UI
-        buyUI.SetActive(true);
+        public void OnTriggerEnter2D()
+        {
+            // Get the item name and send it to the Items script
+            itemManager.GetType(gameObject.GetComponent<Item>().itemType.ToString(), gameObject.name);
+
+            // Display UI
+            buyUI.SetActive(true);
+        }
     }
 }
