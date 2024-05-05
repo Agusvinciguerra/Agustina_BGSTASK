@@ -18,7 +18,8 @@ public class PlayerMovement : MonoBehaviour
         speedX = Input.GetAxis("Horizontal") * speed;
         speedY = Input.GetAxis("Vertical") * speed; 
 
-        // Set player velocity  
-        rb.velocity = new Vector2(speedX, speedY);
+        // Move player 
+        Vector2 newPosition = rb.position + new Vector2(speedX, speedY) * Time.deltaTime;
+        rb.MovePosition(newPosition);
     }
 }
