@@ -12,36 +12,29 @@ namespace ItemsSpace
         public string buttonParentName;
         private string ogParentName;
 
-        public void Awake()
+        public void Awake() // Assign references to variables
         {
             ogParentName = transform.parent.name;
             shop = FindObjectOfType<Shop>();
             inventory = FindObjectOfType<Inventory>();
         }
 
-        public void StartProcess()
+        public void StartProcess() // Get the parent name of the button
         {
             buttonParentName = transform.parent.name;
-            Debug.Log("Entered parent search");
-            Debug.Log(transform.parent.name);
         }
 
-        public void SendBuyItem()
+        public void SendBuyItem() // Send the button parent name to the shop script
         {
             shop.BuyItem(buttonParentName);
         }
 
-        public void SendSellItem()
-        {
-            shop.SellItem(buttonParentName);
-        }
-
-        public void SendSelectItem()
+        public void SendSelectItem() // Send the button parent name to the inventory script
         {
             inventory.SelectItem(buttonParentName);
         }
 
-        public void ReCheck(string buttonName)
+        public void ReCheck(string buttonName) // Check if the button parent name is the same as the item slot name
         {
             if (transform.parent.name == "ItemSlot" && gameObject.name == buttonName)
             {

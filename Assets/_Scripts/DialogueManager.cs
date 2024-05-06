@@ -11,25 +11,21 @@ public class DialogueManager : MonoBehaviour
 
     void Start()
     {
-        // Create a dialogue dictionary to store phrases with their corresponding keys
-        dialogues = new Dictionary<string, string>
+        dialogues = new Dictionary<string, string> // Create a dialogue dictionary to store phrases with their corresponding keys
         {
             { "welcome", "Welcome, wanderer" },
             { "openShop", "What brings you here today?" },
             { "buy", "Great choice"},
             { "noMoney", "You don't have enough money"},
-            { "sell", "What do you have for me today?" },
             { "exit", "Goodbye, wanderer"}
         };
     }
 
-    // Call this method to get the corresponding dialogue
-    public void SetLocalText(string key)
+    public void SetLocalText(string key) // Call this method to get the corresponding dialogue for the shopkeeper text
     {
         string text;
         if (dialogues.TryGetValue(key, out text))
         {
-            //Debug.Log(text);
             dialogueText.text = text;
         }
         else
@@ -38,12 +34,11 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void SetShopText(string key)
+    public void SetShopText(string key) // Call this method to get the corresponding dialogue for the shop panel text
     {
         string text;
         if (dialogues.TryGetValue(key, out text))
         {
-            //Debug.Log(text);
             shopText.text = text;
         }
         else

@@ -10,86 +10,41 @@ namespace ItemsSpace
     public class Shop : MonoBehaviour
     {
         public Sprite[] itemObjects;
+        public bool isShop = false;
         [SerializeField] private Transform[] itemSlots;
         [SerializeField] private TextMeshProUGUI[] itemText; 
-        private Inventory inventory;
-        [SerializeField] private PlayerMovement playerMovement;
-        private DialogueManager dialogueManager; 
         [SerializeField] private FindButtonParent[] findButtonParent;
+        [SerializeField] private Sprite transparent;
+        private PlayerMovement playerMovement;
+        private Inventory inventory;
+        private DialogueManager dialogueManager; 
         private string slotOGName;
 
-        void Awake()
+        void Awake() // Assign references to variables
         {
             playerMovement = FindObjectOfType<PlayerMovement>();
             inventory = FindObjectOfType<Inventory>();
             dialogueManager = FindObjectOfType<DialogueManager>();
         }
 
-        public void CloseShop()
+        public void CloseShop() // Close shop
         {
             playerMovement.positionLocked = false;
+            isShop = false;
         }
 
-        // Sets the items in shop
-        /*public void EnterShop()
-        {
-            playerMovement.positionLocked = true;
-            List<Sprite> matchedSprites = new List<Sprite>();
-            List<float> matchedPrices = new List<float>();
-            List<string> matchedType = new List<string>();
-
-            foreach (KeyValuePair<string, Tuple<float, string, bool>> item in ItemData.instance.itemDictionary)
-            {
-                for (int i = 0; i < itemObjects.Length; i++)
-                {
-                    if (itemObjects[i].name == item.Key)
-                    {
-                        //Debug.Log("Found matching Sprite for key: " + item.Key + " at index: " + i + " with name: " + itemObjects[i].name);
-                        //Debug.Log("Price of the item: " + item.Value.Item1);
-                        //Debug.Log("Type of the item: " + item.Value.Item2);
-                        matchedSprites.Add(itemObjects[i]);
-                        matchedPrices.Add(item.Value.Item1);
-                        matchedType.Add(item.Value.Item2);
-                    }
-                }
-            }
-
-            int c = 0;
-            foreach (Transform slot in itemSlots)
-            {
-                if (c < matchedSprites.Count)
-                {
-                    Sprite currentSprite = matchedSprites[c];
-                    //Debug.Log("Current sprite name: " + currentSprite.name);
-
-                    slot.gameObject.GetComponent<Image>().sprite = matchedSprites[c];
-                    itemText[c].text = matchedType[c] + "\n$" + matchedPrices[c];
-                    c++;
-                    
-                    slotOGName = slot.transform.parent.name;
-
-                    slot.transform.parent.name = currentSprite.name;
-                }
-            }
-            
-            foreach (FindButtonParent findButtonParent in findButtonParent)
-            {
-                findButtonParent.StartProcess();
-            }
-        }*/
-
-        public void EnterShop()
+        public void EnterShop() // Open shop and display items
         {
             playerMovement.positionLocked = true;
             findButtonParent = FindObjectsOfType<FindButtonParent>();
+            isShop = true;
 
             dialogueManager.SetShopText("openShop");
             List<Sprite> matchedSprites = new List<Sprite>();
             List<float> matchedPrices = new List<float>();
             List<string> matchedType = new List<string>();
 
-            // Create a dictionary that maps item names to their corresponding sprites, prices, and types
-            Dictionary<string, (Sprite sprite, float price, string type)> itemData = new Dictionary<string, (Sprite sprite, float price, string type)>();
+            Dictionary<string, (Sprite sprite, float price, string type)> itemData = new Dictionary<string, (Sprite sprite, float price, string type)>(); // Create a new dictionary to update items
             for (int i = 0; i < itemObjects.Length; i++)
             {
                 string itemName = itemObjects[i].name;
@@ -98,8 +53,7 @@ namespace ItemsSpace
                 itemData[itemName] = (itemObjects[i], itemPrice, itemType);
             }
 
-            // Now you can look up the sprite, price, and type for an item in constant time
-            foreach (KeyValuePair<string, Tuple<float, string, bool>> item in ItemData.instance.itemDictionary)
+            foreach (KeyValuePair<string, Tuple<float, string, bool>> item in ItemData.instance.itemDictionary) // Check if the item is bought
             {
                 if (itemData.TryGetValue(item.Key, out var data) && !item.Value.Item3)
                 {
@@ -110,12 +64,11 @@ namespace ItemsSpace
             }
             
             int c = 0;
-            foreach (Transform slot in itemSlots)
+            foreach (Transform slot in itemSlots) // Display items in shop making sure image matches text
             {
                 if (c < matchedSprites.Count)
                 {
                     Sprite currentSprite = matchedSprites[c];
-                    //Debug.Log("Current sprite name: " + currentSprite.name);
 
                     slot.gameObject.GetComponent<Image>().sprite = matchedSprites[c];
                     itemText[c].text = matchedType[c] + "\n$" + matchedPrices[c];
@@ -124,19 +77,16 @@ namespace ItemsSpace
                     slotOGName = slot.transform.parent.name;
 
                     slot.transform.parent.name = currentSprite.name;
-                    Debug.Log("Reached this point");
                 }
             }
             
-            foreach (FindButtonParent findButtonParent in findButtonParent)
+            foreach (FindButtonParent findButtonParent in findButtonParent) // Find the button parent name 
             {
-                Debug.Log("Entered parent search");
                 findButtonParent.StartProcess();
             }
         }
 
-
-        public void BuyItem(string itemName)
+        public void BuyItem(string itemName) // Buy item from shop
         {
             if (ItemData.instance.itemDictionary.ContainsKey(itemName))
             {
@@ -145,53 +95,21 @@ namespace ItemsSpace
                 {
                     inventory.playerMoney -= item.Item1; // Take price from player's money
                     ItemData.instance.itemDictionary[itemName] = new Tuple<float, string, bool>(item.Item1, item.Item2, true); // Set bool's condition to true
+                    inventory.UpdateUI(); // Update money amount in UI
                     
                     inventory.boughtItems.Add(itemName); // Add item to inventory
-                    inventory.DebugInventory();
                     
-                    Debug.Log("Item bought!");
                     dialogueManager.SetShopText("buy");
                     ClearSlot(itemName);
                 }
                 else
                 {
-                    Debug.Log("Not enough money!");
                     dialogueManager.SetShopText("noMoney");
                 }
             }
-            else
-            {
-                Debug.Log("Item not found!");
-            }
         }
 
-        public void SellItem(string itemName)
-        {
-            if (ItemData.instance.itemDictionary.ContainsKey(itemName))
-            {
-                var item = ItemData.instance.itemDictionary[itemName];
-                if (item.Item3) // Check if player has the item
-                {
-                    inventory.playerMoney += item.Item1; // Add price to player's money
-                    ItemData.instance.itemDictionary[itemName] = new Tuple<float, string, bool>(item.Item1, item.Item2, false); // Set bool's condition to false
-                    
-                    inventory.boughtItems.Remove(itemName); // Remove item from inventory
-                    inventory.DebugInventory();
-                    
-                    Debug.Log("Item sold!");
-                }
-                else
-                {
-                    Debug.Log("Item not found in inventory!");
-                }
-            }
-            else
-            {
-                Debug.Log("Item not found!");
-            }
-        }
-
-        void ClearSlot(string clearedItem)
+        void ClearSlot(string clearedItem) // Clear shop slot after buying an item
         {
             for (int i = 0; i < itemSlots.Length; i++)
             {
@@ -200,13 +118,12 @@ namespace ItemsSpace
                 {
                     slot.transform.parent.name = slotOGName;
                     itemText[i].text = "Bought" + "\n" + "item"; // Clear the corresponding item text
-                    slot.gameObject.GetComponent<Image>().sprite = null; // Clear the item image if needed
-                    //slot.transform.parent.gameObject.SetActive(false);
+                    slot.gameObject.GetComponent<Image>().sprite = transparent; // Clear the item image
                     foreach (FindButtonParent findButtonParent in findButtonParent)
                     {
                         findButtonParent.ReCheck("Buy");
                     }
-                    break; // Exit the loop if you only expect one match
+                    break;
                 }
             }
         }

@@ -9,25 +9,22 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
-        // Find the Rigidbody2D component
-        rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>(); // Find Rigidbody2D component
     }
 
-    void Update()
+    void Update() // Get player input
     {
         if (!positionLocked)
         {
-            // Get input 
             movement.x = Input.GetAxis("Horizontal");
             movement.y = Input.GetAxis("Vertical");
         }
     }
 
-    void FixedUpdate()
+    void FixedUpdate() // Move player
     {
         if (!positionLocked)
         {
-            // Move player 
             Vector2 newPosition = rb.position + movement.normalized * speed * Time.fixedDeltaTime;
             rb.MovePosition(newPosition);
         }
