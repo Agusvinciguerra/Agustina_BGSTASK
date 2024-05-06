@@ -134,6 +134,7 @@ namespace ItemsSpace
 
                     equippedItems.Add(itemName);
                     panelText.text = $"You equipped {itemType}!";
+                    itemDetails.text = $"{itemType}\nEquipped";
                 }
                 itemName = string.Empty;
             } else

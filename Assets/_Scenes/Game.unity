@@ -412,7 +412,7 @@ RectTransform:
   m_GameObject: {fileID: 115200557}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.89393, y: 0.89393, z: 0.89393}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 761739288}
@@ -426,7 +426,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 76.30001}
+  m_AnchoredPosition: {x: 0, y: 77.73596}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &116117089 stripped
@@ -7101,7 +7101,7 @@ MonoBehaviour:
   customSprites:
   - {fileID: 21300000, guid: aae977d18805f2d42b71b78b6fa677d6, type: 3}
   - {fileID: 21300000, guid: a9fd9a86f3c8a6742a90e89154c4607d, type: 3}
-  - {fileID: 21300000, guid: f8635b7453e78884a9c2825bfedc3916, type: 3}
+  - {fileID: 21300000, guid: edf897baf4c2aba4ea1eda4f21011b95, type: 3}
   inventorySlots:
   - {fileID: 1472019384}
   - {fileID: 854842336}
@@ -12775,7 +12775,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96cee2d0e86ca194d9925c748469ac32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  speed: 2
   positionLocked: 0
 --- !u!1001 &3608065068604404487
 PrefabInstance:
